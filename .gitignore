@@ -33,3 +33,5 @@
 #code that should be avoided to executed 
 *.py
 *.cpp
+#built files
+*.sh
