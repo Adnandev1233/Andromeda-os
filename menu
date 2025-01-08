@@ -2,38 +2,39 @@
 #include <vector>
 #include <string>
 
-void displayMenu(int highlight, const std::vector<std::string>& options) {
-    int x, y;
-    x = 2; // Starting position for text
-    y = 6; // Adjusted y position to leave space for the header
+void displayMenu(int highlight, const std::vector<std::string>& options, int width, int height) {
+    int x = 1; // Left padding for the menu items
+    int y = (height - options.size()) / 2; // Center menu items vertically
 
     for (int i = 0; i < options.size(); i++) {
         if (i == highlight) {
-            attron(A_REVERSE); // Highlight option (reverse colors)
+            attron(A_REVERSE | A_BOLD); // Highlight the selected option with reverse colors and bold
+            mvprintw(y, x, options[i].c_str()); // Print the highlighted option
+            attroff(A_REVERSE | A_BOLD); // Turn off highlight and bold after printing
+        } else {
+            mvprintw(y, x, options[i].c_str()); // Print normal options
         }
-        mvprintw(y, x, options[i].c_str());
-        attroff(A_REVERSE); // Turn off highlight
         y++;
     }
     refresh();
 }
 
 void displayHeader(int width) {
-    int x = (width - 22) / 2; // Center the header ("Welcome to the Menu!") horizontally
+    int x = 0; // Starting at the leftmost side of the screen
     int y = 1; // Position for header at the top
 
-    attron(COLOR_PAIR(1)); // Set color pair for white background and black text
-    mvprintw(y, x, "Welcome to the Menu!"); // Display the header at the center
-    attroff(COLOR_PAIR(1)); // Reset color pair
+    attron(A_BOLD); // Make the header bold
+    mvhline(0, 0, '-', width); // Create a horizontal line to simulate the border for the header
+    mvprintw(y, x + 2, "Welcome to the Bootloader"); // Display the header with padding on the left
+    mvhline(2, 0, '-', width); // Create a line just below the header
+    attroff(A_BOLD); // Reset bold
 
     refresh();
 }
 
 void displayBorder(int height, int width) {
-    // Draw a border around the menu area
-    box(stdscr, 0, 0); // Top and left border
-    mvhline(1, 0, '-', width); // Top border line (above the menu)
-    mvhline(height - 1, 0, '-', width); // Bottom border line (below the menu)
+    // Draw the outer border around the menu area
+    box(stdscr, 0, 0); // Outer border
     mvvline(1, 0, '|', height - 2); // Left border line (beside the menu)
     mvvline(1, width - 1, '|', height - 2); // Right border line (beside the menu)
 }
@@ -46,9 +47,10 @@ int main() {
     keypad(stdscr, TRUE);     // Enable special keys (e.g., arrows)
     curs_set(0);              // Hide cursor
 
-    // Initialize color pairs
+    // Set background to black and text to white
     start_color();
-    init_pair(1, COLOR_BLACK, COLOR_WHITE); // White background, black foreground
+    init_pair(1, COLOR_WHITE, COLOR_BLACK); // White text on black background
+    bkgd(COLOR_PAIR(1)); // Set the background color for the whole screen
 
     // Menu options
     std::vector<std::string> options = {"Start", "Config", "Exit"};
@@ -62,9 +64,9 @@ int main() {
     // Main loop
     while (true) {
         clear();
-        displayBorder(height, width); // Draw the border
+        displayBorder(height, width); // Draw the border around the menu
         displayHeader(width); // Display the centered header
-        displayMenu(highlight, options); // Display the menu
+        displayMenu(highlight, options, width, height); // Display the menu options
         ch = getch(); // Get user input
 
         switch (ch) {
