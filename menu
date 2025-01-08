@@ -18,15 +18,24 @@ void displayMenu(int highlight, const std::vector<std::string>& options) {
     refresh();
 }
 
-void displayHeader() {
-    int x = 2; // Starting position for header text
+void displayHeader(int width) {
+    int x = (width - 22) / 2; // Center the header ("Welcome to the Menu!") horizontally
     int y = 1; // Position for header at the top
 
     attron(COLOR_PAIR(1)); // Set color pair for white background and black text
-    mvprintw(y, x, "Welcome to the Menu!");
+    mvprintw(y, x, "Welcome to the Menu!"); // Display the header at the center
     attroff(COLOR_PAIR(1)); // Reset color pair
 
     refresh();
+}
+
+void displayBorder(int height, int width) {
+    // Draw a border around the menu area
+    box(stdscr, 0, 0); // Top and left border
+    mvhline(1, 0, '-', width); // Top border line (above the menu)
+    mvhline(height - 1, 0, '-', width); // Bottom border line (below the menu)
+    mvvline(1, 0, '|', height - 2); // Left border line (beside the menu)
+    mvvline(1, width - 1, '|', height - 2); // Right border line (beside the menu)
 }
 
 int main() {
@@ -47,10 +56,14 @@ int main() {
     int choice = -1;   // User's choice
     int ch;
 
+    int height = 10; // Menu height
+    int width = 40;  // Menu width
+
     // Main loop
     while (true) {
         clear();
-        displayHeader(); // Display the header
+        displayBorder(height, width); // Draw the border
+        displayHeader(width); // Display the centered header
         displayMenu(highlight, options); // Display the menu
         ch = getch(); // Get user input
 
