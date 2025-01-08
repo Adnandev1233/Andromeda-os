@@ -3,10 +3,13 @@
 #include <string>
 
 void displayMenu(int highlight, const std::vector<std::string>& options, int width, int height) {
-    int x = 1; // Left padding for the menu items
-    int y = (height - options.size()) / 2; // Center menu items vertically
+    int x = 0; // Start from the left edge
+    int y = (height - options.size()) / 2; // Vertically center the menu items
 
     for (int i = 0; i < options.size(); i++) {
+        // Center each menu option horizontally
+        x = (width - options[i].length()) / 2;
+
         if (i == highlight) {
             attron(A_REVERSE | A_BOLD); // Highlight the selected option with reverse colors and bold
             mvprintw(y, x, options[i].c_str()); // Print the highlighted option
@@ -20,12 +23,12 @@ void displayMenu(int highlight, const std::vector<std::string>& options, int wid
 }
 
 void displayHeader(int width) {
-    int x = 0; // Starting at the leftmost side of the screen
+    int x = 0; // Start from the leftmost side
     int y = 1; // Position for header at the top
 
     attron(A_BOLD); // Make the header bold
     mvhline(0, 0, '-', width); // Create a horizontal line to simulate the border for the header
-    mvprintw(y, x + 2, "Welcome to the Bootloader"); // Display the header with padding on the left
+    mvprintw(y, (width - 22) / 2, "Welcome to the Bootloader"); // Center header text
     mvhline(2, 0, '-', width); // Create a line just below the header
     attroff(A_BOLD); // Reset bold
 
@@ -33,7 +36,7 @@ void displayHeader(int width) {
 }
 
 void displayBorder(int height, int width) {
-    // Draw the outer border around the menu area
+    // Draw the outer border around the screen (not around menu items)
     box(stdscr, 0, 0); // Outer border
     mvvline(1, 0, '|', height - 2); // Left border line (beside the menu)
     mvvline(1, width - 1, '|', height - 2); // Right border line (beside the menu)
@@ -64,7 +67,7 @@ int main() {
     // Main loop
     while (true) {
         clear();
-        displayBorder(height, width); // Draw the border around the menu
+        displayBorder(height, width); // Draw the outer border around the menu
         displayHeader(width); // Display the centered header
         displayMenu(highlight, options, width, height); // Display the menu options
         ch = getch(); // Get user input
